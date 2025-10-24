@@ -34,7 +34,10 @@ public class MessageListener extends ListenerAdapter {
         this.musicManagers = new ConcurrentHashMap<>();
         this.monitoredChannels = new ConcurrentHashMap<>();
         this.playerManager = new DefaultAudioPlayerManager();
-        this.ttsConverter = new TTSConverter("ru-RU-DmitryNeural");
+        this.ttsConverter = new TTSConverter(
+                "ru-RU-SvetlanaNeural"
+                //"ru-RU-DmitryNeural"
+        );
 
         AudioSourceManagers.registerRemoteSources(playerManager);
         AudioSourceManagers.registerLocalSource(playerManager);
@@ -73,6 +76,7 @@ public class MessageListener extends ListenerAdapter {
      * Обрабатывает команды, такие как !listen и !unlisten.
      */
     private void handleCommand(MessageReceivedEvent event, String content, String prefix) {
+
         if (content.startsWith(prefix + "listen")) {
             if (event.getMessage().getMentions().getChannels().isEmpty()) {
                 event.getChannel().sendMessage("❌ Укажите текстовый канал, который нужно озвучивать, например: `!listen #general`").queue();

@@ -35,6 +35,7 @@ public class TTSConverter {
                 .findHeadHook()
                 .isRateLimited(true)
                 .fileName(uniqueFileName)
+                .voiceRate("1.2")
                 .overwrite(true)
                 .formatMp3();
 

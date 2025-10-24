@@ -1,4 +1,4 @@
-package org.maksemses.lavaplayer;
+package org.maksemses.LavaPlayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;

@@ -2,7 +2,7 @@ package org.maksemses.LavaPlayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import org.maksemses.lavaplayer.AudioPlayerSendHandler;
+import org.maksemses.LavaPlayer.AudioPlayerSendHandler;
 
 public class GuildMusicManager {
     public final AudioPlayer player;
