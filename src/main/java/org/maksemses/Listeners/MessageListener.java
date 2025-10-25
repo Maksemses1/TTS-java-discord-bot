@@ -25,12 +25,9 @@ public class MessageListener extends ListenerAdapter {
     private final Map<Long, GuildMusicManager> musicManagers;
     private final TTSConverter ttsConverter;
 
-    // --- НОВОЕ: Хранилище для отслеживаемых каналов ---
-    // Ключ: ID сервера (Guild), Значение: ID текстового канала для озвучки
     private final Map<Long, Long> monitoredChannels;
 
     public MessageListener() {
-        // Используем ConcurrentHashMap для потокобезопасности
         this.musicManagers = new ConcurrentHashMap<>();
         this.monitoredChannels = new ConcurrentHashMap<>();
         this.playerManager = new DefaultAudioPlayerManager();
@@ -44,7 +41,6 @@ public class MessageListener extends ListenerAdapter {
     }
 
     private synchronized GuildMusicManager getGuildAudioPlayer(Guild guild) {
-        // Используем computeIfAbsent для более лаконичной инициализации
         return musicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
             GuildMusicManager newManager = new GuildMusicManager(playerManager);
             guild.getAudioManager().setSendingHandler(newManager.getSendHandler());
@@ -59,13 +55,11 @@ public class MessageListener extends ListenerAdapter {
         String content = event.getMessage().getContentRaw();
         String prefix = "!";
 
-        // --- 1. ПРОВЕРЯЕМ, ЯВЛЯЕТСЯ ЛИ СООБЩЕНИЕ КОМАНДОЙ ---
         if (content.startsWith(prefix)) {
             handleCommand(event, content, prefix);
-            return; // Завершаем, так как команда была обработана
+            return;
         }
 
-        // --- 2. ЕСЛИ ЭТО НЕ КОМАНДА, ПРОВЕРЯЕМ, НУЖНО ЛИ ЕГО ОЗВУЧИВАТЬ ---
         Long monitoredChannelId = monitoredChannels.get(event.getGuild().getIdLong());
         if (monitoredChannelId != null && event.getChannel().getIdLong() == monitoredChannelId) {
             speakMessage(event, content);
@@ -84,12 +78,12 @@ public class MessageListener extends ListenerAdapter {
             }
             TextChannel targetChannel = (TextChannel) event.getMessage().getMentions().getChannels().get(0);
             monitoredChannels.put(event.getGuild().getIdLong(), targetChannel.getIdLong());
-            connectToVoiceChannel(event); // Подключаемся к голосовому каналу
+            connectToVoiceChannel(event);
             event.getChannel().sendMessage("✅ Начинаю озвучивать сообщения в канале " + targetChannel.getAsMention()).queue();
 
         } else if (content.equals(prefix + "unlisten")) {
             if (monitoredChannels.remove(event.getGuild().getIdLong()) != null) {
-                event.getGuild().getAudioManager().closeAudioConnection(); // Отключаемся от голоса
+                event.getGuild().getAudioManager().closeAudioConnection();
                 event.getChannel().sendMessage("✅ Озвучивание остановлено.").queue();
             } else {
                 event.getChannel().sendMessage("❌ Бот и так не озвучивал никакой канал.").queue();
@@ -101,21 +95,16 @@ public class MessageListener extends ListenerAdapter {
      * Генерирует и воспроизводит речь из текста сообщения.
      */
     private void speakMessage(MessageReceivedEvent event, String text) {
-        // Проверяем, на месте ли бот
+
         if (!event.getGuild().getAudioManager().isConnected()) {
             monitoredChannels.remove(event.getGuild().getIdLong());
             event.getChannel().sendMessage("ℹ️ Я был отключен от голосового канала, озвучивание остановлено. Используйте `!listen`, чтобы начать заново.").queue();
             return;
         }
         String filePath = ttsConverter.textToSpeech(text);
-        // Вызываем loadAndPlay без отправки сообщения в чат
         loadAndPlay(event, filePath, false);
     }
 
-    /**
-     * Загружает трек и добавляет в очередь.
-     * @param sendMessage true, если нужно отправить подтверждение в чат
-     */
     private void loadAndPlay(final MessageReceivedEvent event, final String trackIdentifier, final boolean sendMessage) {
         GuildMusicManager musicManager = getGuildAudioPlayer(event.getGuild());
         playerManager.loadItemOrdered(musicManager, trackIdentifier, new AudioLoadResultHandler() {
@@ -124,7 +113,6 @@ public class MessageListener extends ListenerAdapter {
                 connectToVoiceChannel(event);
                 musicManager.scheduler.queue(track);
                 if (sendMessage) {
-                    // Определяем, это файл или ссылка, для красивого вывода
                     String title = track.getIdentifier().contains(File.separator) ? "Сгенерированная речь" : track.getInfo().title;
                     event.getChannel().sendMessage("✅ Добавляю в очередь: " + title).queue();
                 }

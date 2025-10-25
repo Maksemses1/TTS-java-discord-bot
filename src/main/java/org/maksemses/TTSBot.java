@@ -10,7 +10,7 @@ import org.maksemses.http.TextTranscribeHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors; // <-- 1. ДОБАВЛЕН ИМПОРТ
+import java.util.concurrent.Executors;
 
 public class TTSBot
 {
@@ -35,12 +35,7 @@ public class TTSBot
 
             server.createContext("/transcribe", new TextTranscribeHandler(jda));
 
-            // --- 2. ВОТ ИСПРАВЛЕНИЕ ---
-            // Вместо server.setExecutor(null);
-            // Даем серверу пул потоков для обработки запросов.
-            // Теперь один "зависший" запрос не заблокирует весь сервер.
             server.setExecutor(Executors.newCachedThreadPool());
-            // ------------------------
 
             server.start();
             System.out.println("HTTP-сервер запущен на порту 45678...");

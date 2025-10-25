@@ -28,7 +28,6 @@ public class TTSConverter {
      * @return Абсолютный путь к созданному .opus файлу.
      */
     public String textToSpeech(String content) {
-        // Генерируем уникальное имя файла, чтобы избежать конфликтов
         String uniqueFileName = UUID.randomUUID().toString();
 
         TTS tts = new TTS(voice, content)
@@ -41,7 +40,6 @@ public class TTSConverter {
 
         tts.trans();
 
-        // Библиотека сохраняет файлы в папку 'storage' относительно места запуска
         File audioFile = new File("storage/" + uniqueFileName + ".mp3");
         return audioFile.getAbsolutePath();
     }

@@ -11,16 +11,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-/**
- * НОВЫЙ обработчик.
- * Принимает POST-запрос и отправляет полученный текст
- * в текстовый канал Discord, выбранный командой !stt-here.
- */
+
 public class TextTranscribeHandler implements HttpHandler {
 
     private final JDA jda;
 
-    // Этому обработчику нужен *только* JDA, чтобы отправлять сообщения
     public TextTranscribeHandler(JDA jda) {
         this.jda = jda;
     }
@@ -41,23 +36,17 @@ public class TextTranscribeHandler implements HttpHandler {
                 throw new IOException("STT target channel not set. Use !stt-here in Discord first.");
             }
 
-            // 2. Находим этот канал
             TextChannel channel = jda.getTextChannelById(targetChannelId);
             if (channel == null) {
                 throw new IOException("Target text channel not found (ID: " + targetChannelId + ")");
             }
 
-            // 3. (Проверки голоса НЕТ)
-            // 4. Читаем текст из POST-запроса
             InputStream is = exchange.getRequestBody();
             String text = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             System.out.println("[STT-HTTP-TEXT] Получен текст: " + text);
 
             if (text != null && !text.isBlank()) {
-                // 5. (Генерации речи НЕТ)
-                // 6. (LavaPlayer НЕТ)
 
-                // Просто отправляем текст в чат
                 channel.sendMessage(text).queue();
             }
 
@@ -66,7 +55,6 @@ public class TextTranscribeHandler implements HttpHandler {
             responseMessage = e.getMessage();
             statusCode = 500;
         } finally {
-            // 7. Отправляем ответ 200 (OK) обратно в VoiceRecorderApp
             exchange.sendResponseHeaders(statusCode, responseMessage.getBytes().length);
             OutputStream os = exchange.getResponseBody();
             os.write(responseMessage.getBytes());
