@@ -47,7 +47,13 @@ public class TextTranscribeHandler implements HttpHandler {
 
             if (text != null && !text.isBlank()) {
 
-                channel.sendMessage(text).queue();
+                final String filterString = "Редактор субтитров А.Синецкая Корректор А.Егорова";
+
+                if (text.contains(filterString)) {
+                    System.out.println("[STT-HTTP-TEXT] Сообщение отфильтровано (титры) и не будет отправлено.");
+                } else {
+                    channel.sendMessage(text).queue();
+                }
             }
 
         } catch (Exception e) {
